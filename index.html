@@ -1494,6 +1494,7 @@
   var FRAME_MAX_W = 900;     /* 업로드 전 가로 최대 픽셀 */
   var AI_BTN_LABEL = 'AI로 조건 검수 & 아이디 추출';
   var aiFrames = [];         /* {url: dataURL} */
+  var aiBlank = 0;           /* 거의 검은 프레임 수 (iOS 첫 프레임 검은 화면 감지) */
   var aiBusy = false;
   var aiGen = 0;             /* 파일 교체 감지용 */
 
@@ -1538,6 +1539,17 @@
     var url;
     try { url = out.toDataURL('image/jpeg', 0.72); }
     catch (e){ return; }
+    /* 거의 검은 장면인지 검사 (아이폰 사파리에서 첫 프레임이 검게 나오는 경우 대비) */
+    try {
+      var tiny = document.createElement('canvas');
+      tiny.width = 8; tiny.height = 8;
+      var tc = tiny.getContext('2d');
+      tc.drawImage(out, 0, 0, 8, 8);
+      var px = tc.getImageData(0, 0, 8, 8).data;
+      var sum = 0;
+      for (var pi = 0; pi < px.length; pi += 4) sum += (px[pi] + px[pi + 1] + px[pi + 2]) / 3;
+      if (sum / 64 < 8) aiBlank++;
+    } catch (e){}
     aiFrames.push({ url: url });
   }
 
@@ -1586,14 +1598,27 @@
           times = picked;
         }
         var idx = 0;
-        v.onseeked = function(){
-          grab(v, v.videoWidth || 720, v.videoHeight || 1280);
-          idx++;
-          if (idx >= times.length){ end(null); return; }
-          v.currentTime = times[idx];
-        };
-        try { v.currentTime = times[0]; }
-        catch (e){ end('영상 장면을 뽑지 못했어요. 다른 파일로 다시 시도해 주세요.'); }
+        function startSeeks(){
+          v.onseeked = function(){
+            grab(v, v.videoWidth || 720, v.videoHeight || 1280);
+            idx++;
+            if (idx >= times.length){ end(null); return; }
+            v.currentTime = times[idx];
+          };
+          try { v.currentTime = times[0]; }
+          catch (e){ end('영상 장면을 뽑지 못했어요. 다른 파일로 다시 시도해 주세요.'); }
+        }
+        /* 아이폰 사파리는 한 번 재생시켜야 캔버스로 그릴 때 검은 화면이 안 나온다 */
+        var pr = null;
+        try { pr = v.play(); } catch (e){}
+        if (pr && typeof pr.then === 'function'){
+          pr.then(function(){
+            try { v.pause(); } catch (e){}
+            setTimeout(startSeeks, 70);
+          }).catch(function(){ setTimeout(startSeeks, 0); });
+        } else {
+          setTimeout(startSeeks, 0);
+        }
       };
       v.src = url;
     });
@@ -1633,6 +1658,7 @@
   async function handleAiFiles(){
     var list = elAiFiles.files ? Array.prototype.slice.call(elAiFiles.files) : [];
     aiFrames = [];
+    aiBlank = 0;
     renderThumbs();
     elAiExcl.hidden = true;
     if (!list.length){ setAiStat('영상을 올리면 자동으로 장면을 뽑아 두요.'); return; }
@@ -1658,6 +1684,11 @@
     }
     var msg = aiFrames.length + '장 추출 완료 · AI 검수를 눌러 주세요.';
     if (errors.length) msg += ' (일부 실패: ' + errors.join(' / ') + ')';
+    if (aiBlank === aiFrames.length){
+      msg = '장면이 모두 검게 나왔어요. 영상 대신 화면 캡처 이미지로 올려 주세요.';
+      setAiStat(msg, 'warn');
+      return;
+    }
     setAiStat(msg, errors.length ? 'warn' : 'ok');
   }
 
