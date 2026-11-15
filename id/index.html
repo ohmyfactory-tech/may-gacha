@@ -33,6 +33,8 @@
 }
 *{box-sizing:border-box;}
 html{-webkit-text-size-adjust:100%;}
+/* 폼 요소도 픽셀 폰트 상속 (모바일 Safari에서 시스템 폰트로 바뀌지 않도록) */
+button,input,select,textarea{font-family:inherit; font-size:inherit; letter-spacing:inherit;}
 body{
   margin:0; min-height:100%;
   font-family:'Galmuri11','DungGeunMo','NeoDungGeunMo','DotGothic16','Apple SD Gothic Neo','Malgun Gothic',system-ui,monospace;
@@ -257,8 +259,13 @@ textarea#ids{
   outline:none;
 }
 textarea#ids:focus{background:#fff; box-shadow:inset 2px 2px 0 rgba(30,30,46,.07), 0 0 0 2px #ffe58f;}
+textarea#ids::placeholder{
+  font-family:'Galmuri11','DungGeunMo','NeoDungGeunMo','DotGothic16','Apple SD Gothic Neo','Malgun Gothic',system-ui,monospace;
+  color:#a49cba; opacity:1;
+}
+textarea#ids::-webkit-input-placeholder{letter-spacing:0;}
 .chips{display:flex; flex-wrap:wrap; gap:5px; margin-top:9px; max-height:112px; overflow:auto; padding:1px;}
-.chips:empty::before{content:"아직 참여자가 없어요 — 아이디를 붙여넣어 주세요"; font-size:10.5px; color:var(--ink-mute);}
+.chips:empty::before{content:"아직 참여자가 없어요 — 명단을 입력해 주세요"; font-size:10.5px; color:var(--ink-mute);}
 .chip{
   display:inline-flex; align-items:center; gap:5px; max-width:100%;
   padding:2px 6px 2px 4px; font-size:11px; background:#fff;
@@ -359,6 +366,10 @@ body.crt{background-color:#f6efd9;}
   .stage .deco.b{top:auto; bottom:60px; right:10px;}
   .log{max-height:none; min-height:96px;}
   textarea#ids{min-height:118px;}
+}
+@media (max-width: 520px){
+  /* iOS Safari가 포커스 시 화면을 확대하지 않도록 16px 유지 */
+  textarea#ids{font-size:16px;}
 }
 @media (max-width: 520px){
   .wrap{padding:8px 6px 22px;}
@@ -562,7 +573,7 @@ body.crt{background-color:#f6efd9;}
             <div class="row" style="gap:5px; margin-bottom:6px;">
               <span class="hint">한 줄에 한 명씩 아이디 입력/수정</span>
             </div>
-            <textarea id="ids" spellcheck="false" placeholder="starrynight.529&#10;happywithjh_&#10;mmmjh_052909&#10;… 또는 쓰레드 댓글 전체를 붙여넣고 아래 버튼을 누르세요"></textarea>
+            <textarea id="ids" spellcheck="false" placeholder="명단을 입력해 주세요 (한 줄에 한 명씩)&#10;또는 쓰레드 댓글 전체를 붙여넣고&#10;아래 [댓글에서 @아이디만 추출]을 누르세요."></textarea>
             <button class="mini wide hi" id="extractBtn" type="button" style="margin-top:7px;">[댓글에서 @아이디만 추출]</button>
             <div class="row" style="margin-top:6px; gap:5px;">
               <button class="mini" id="sampleBtn" type="button">샘플 복원</button>
@@ -606,7 +617,7 @@ body.crt{background-color:#f6efd9;}
     </div>
     <div class="pcontent">
       <div class="bigbead" id="popBead"></div>
-      <div class="lb">당첨 아이디</div>      <div class="who" id="popName">@</div>
+      <div class="lb">당첨자</div>      <div class="who" id="popName">-</div>
       <div class="cname" id="popColor"><i class="dot"></i>스프링 부케</div>
       <div class="popbtns">
         <button class="mini go" id="popAgain" type="button">한 번 더 뽑기</button>
@@ -628,7 +639,8 @@ body.crt{background-color:#f6efd9;}
     { name:"레몬 토닉",  hex:"#F9E547" },
     { name:"피치 핑크",  hex:"#FA9A85" }
   ];
-  var SAMPLE = ["starrynight.529","happywithjh_","mmmjh_052909","lisaa_0529","0529_ok"];
+  // 예시는 실제 아이디 형태가 아닌 일반 이름만 쓴다 (개인정보 노출 방지)
+  var SAMPLE = ["참여자 1","참여자 2","참여자 3","참여자 4","참여자 5"];
 
   var KEY = {
     list:"bbobbong_id_list_v1",
@@ -690,14 +702,27 @@ body.crt{background-color:#f6efd9;}
   function cleanHandle(s){
     return String(s || "").replace(/^@+/, "").replace(/[^\w.]/g, "").slice(0, 30);
   }
+  // 아이디 형태일 때만 @를 붙여 보여준다
+  function fmt(id){ return ID_RE.test(String(id)) ? "@" + id : String(id); }
   function parseList(raw){
     var out = [], seen = {};
+    function keep(v){
+      if(!v) return;
+      var k = v.toLowerCase();
+      if(seen[k]) return;
+      seen[k] = 1; out.push(v);
+    }
     function push(h){
       var c = cleanHandle(h);
       if(!c || !ID_RE.test(c)) return;
-      var k = c.toLowerCase();
-      if(seen[k]) return;
-      seen[k] = 1; out.push(c);
+      keep(c);
+    }
+    // 한 줄에 한 명씩 직접 적은 이름(한글 포함)도 그대로 받는다
+    function pushName(line){
+      var v = String(line || "").replace(/^@+/, "").replace(/\s+/g, " ")
+        .replace(/[,;:!?)\]}§]+$/, "").trim().slice(0, 30);
+      if(!v) return;
+      keep(v);
     }
     var text = String(raw || "");
     var at = text.match(/@[A-Za-z0-9._]{2,30}/g);
@@ -705,17 +730,8 @@ body.crt{background-color:#f6efd9;}
       at.forEach(function(t){ push(t.slice(1)); });
       return out;
     }
-    // @ 없이 한 줄에 한 명씩 적은 경우
-    text.split(/\r?\n/).forEach(function(line){
-      var t = line.trim().replace(/^@+/, "");
-      if(!t) return;
-      var tokens = t.split(/[\s,\t]+/).filter(Boolean);
-      if(tokens.length === 1){ push(tokens[0]); return; }
-      tokens.forEach(function(tk){
-        var c = tk.replace(/^@+/, "").replace(/[,.;:!?)\]}§]$/g, "");
-        if(ID_RE.test(c) && /[0-9._]/.test(c)) push(c); // 댓글 문장 속 아이디만
-      });
-    });
+    // @ 없이 한 줄에 한 명씩 적은 경우: 한 줄 = 한 명
+    text.split(/\r?\n/).forEach(function(line){ pushName(line); });
     return out;
   }
 
@@ -735,7 +751,7 @@ body.crt{background-color:#f6efd9;}
     var ws = winnerSet();
     var html = state.list.map(function(id){
       var c = chipColorFor(id), out = ws[winnerKey(id)] ? " out" : "";
-      return '<span class="chip'+out+'" title="@'+esc(id)+'">'+
+      return '<span class="chip'+out+'" title="'+esc(fmt(id))+'">'+
              '<i class="dot" style="background:'+c.hex+'"></i>'+
              '<span class="t">'+esc(id)+'</span></span>';
     }).join("");
@@ -769,7 +785,7 @@ body.crt{background-color:#f6efd9;}
       return '<div class="wrow">'+
         '<span class="no">'+(i+1)+'</span>'+
         '<i class="dot" style="background:'+c.hex+'"></i>'+
-        '<span class="who" title="@'+esc(w.id)+'">@'+esc(w.id)+'</span>'+
+        '<span class="who" title="'+esc(fmt(w.id))+'">'+esc(fmt(w.id))+'</span>'+
         '<span class="cn">'+c.name+'</span>'+
         '<span class="at">'+esc(w.at || "")+'</span>'+
       '</div>';
@@ -952,7 +968,7 @@ body.crt{background-color:#f6efd9;}
   /* ── 팝업 ───────────────────────────── */
   function openPop(id, ci){
     var c = COLORS[ci] || COLORS[0];
-    el.popName.textContent = "@" + id;
+    el.popName.textContent = fmt(id);
     el.popBead.style.background = c.hex;
     el.popColor.innerHTML = '<i class="dot" style="background:'+c.hex+'"></i>' + c.name;
     el.overlay.hidden = false;
@@ -997,7 +1013,7 @@ body.crt{background-color:#f6efd9;}
     if(!state.wins.length) return "";
     var lines = ["🍭 박지훈 뽑봉 아이디 추첨 결과", ""];
     state.wins.forEach(function(w, i){
-      lines.push((i+1) + ". @" + w.id + "  (" + COLORS[w.ci].name + ")");
+      lines.push((i+1) + ". " + fmt(w.id) + "  (" + COLORS[w.ci].name + ")");
     });
     lines.push("");
     lines.push("참여 " + state.list.length + "명 · 당첨 " + state.wins.length + "명");
@@ -1034,7 +1050,7 @@ body.crt{background-color:#f6efd9;}
     var ids = parseList(raw);
     if(!raw.trim()){ toast("명단을 먼저 붙여넣어 주세요"); return; }
     if(!ids.length){ toast("@아이디를 찾지 못했어요 — 댓글을 다시 확인해 주세요"); return; }
-    el.ids.value = ids.map(function(i){ return "@" + i; }).join("\n");
+    el.ids.value = ids.map(fmt).join("\n");
     state.list = ids; save(); renderChips(); renderPool();
     toast(ids.length + "명의 @아이디만 추렸어요!");
   });
@@ -1092,7 +1108,7 @@ body.crt{background-color:#f6efd9;}
   /* ── 시작 ───────────────────────────── */
   load();
   if(!state.list.length){ el.ids.value = SAMPLE.join("\n"); state.list = parseList(el.ids.value); save(); }
-  else el.ids.value = state.list.map(function(i){ return "@" + i; }).join("\n");
+  else el.ids.value = state.list.map(fmt).join("\n");
   renderChips(); renderPool(); renderLog();
   buildBeads();
   window.__bbobbong = { spin: spin, parseList: parseList, state: state };
