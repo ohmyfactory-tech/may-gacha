@@ -71,7 +71,7 @@
   /* ── Y2K 윈도우 ─────────────────────────────── */
   .app{
     position:relative; z-index:3;
-    width:min(940px, calc(100vw - 14px));
+    width:min(968px, calc(100vw - 14px));
     height:min(770px, calc(100vh - 14px));
     height:min(770px, calc(100dvh - 14px));
     display:flex; flex-direction:column;
@@ -113,7 +113,7 @@
 
   .appbody{
     flex:1; min-height:0;
-    display:grid; grid-template-columns:minmax(0,1fr) 336px;
+    display:grid; grid-template-columns:minmax(0,1fr) 356px;
     gap:10px; padding:10px;
   }
   .tips{
@@ -197,10 +197,98 @@
     border:2px solid var(--ink); background:#ffffff; cursor:pointer;
     box-shadow:2px 2px 0 rgba(140,110,205,.30);
   }
+  /* 체크 표시 + 민트 배경 —— background 단축 속성은 색상을 첫 겹에 쓸 수 없어 통째로 무시되므로
+     background-color / background-image 로 분리 선언한다. */
   .chk input[type=checkbox]:checked{
-    background:#ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.2 5.2 L4 8 L8.8 1.6' fill='none' stroke='%232f2b45' stroke-width='1.8' stroke-linecap='square'/%3E%3C/svg%3E") center/80% no-repeat,
-    linear-gradient(#C8F5CE,#A8E6B3);
+    background-color:#ffffff;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.2 5.2 L4 8 L8.8 1.6' fill='none' stroke='%232f2b45' stroke-width='1.8' stroke-linecap='square'/%3E%3C/svg%3E"),
+      linear-gradient(#C8F5CE,#A8E6B3);
+    background-repeat:no-repeat, no-repeat;
+    background-position:center center, center center;
+    background-size:80% 80%, 100% 100%;
   }
+  .chk input[type=checkbox]:focus-visible{outline:2px dashed var(--ink2); outline-offset:2px;}
+
+  /* ── 텍스트 입력 ─────────────────────────────── */
+  .inp{
+    width:100%; font-family:inherit; font-size:12px; line-height:1.4;
+    padding:6px 8px; color:var(--ink); background:#ffffff;
+    border:2px solid var(--line2);
+    box-shadow: inset 2px 2px 0 #f1eaff;
+    outline:none; border-radius:0;
+    -webkit-appearance:none; appearance:none;
+  }
+  .inp::placeholder{color:#b3a6d6;}
+  .inp:focus{border-color:var(--ink2); box-shadow: inset 2px 2px 0 #eee4ff;}
+  .note{font-size:9.5px; line-height:1.45; color:#9d8fc9;}
+  .note a{color:#6b5f96; text-decoration:underline; text-underline-offset:2px;}
+
+  /* ── AI 영상 분석 (접이식) ───────────────────── */
+  .aiwrap{
+    flex:none; border:2px solid var(--line2); background:#fbf8ff;
+    box-shadow: inset 2px 2px 0 #f4efff;
+  }
+  .aibar{
+    display:flex; align-items:center; gap:6px; width:100%;
+    font-family:inherit; font-size:11.5px; color:var(--ink); text-align:left;
+    padding:6px 7px; cursor:pointer; border:0; border-radius:0;
+    background:linear-gradient(90deg,#eef7ff,#f3ebff 58%,#fff2f8);
+  }
+  .aibar .aitxt{flex:1; letter-spacing:.2px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+  .aibar .aicaret{font-size:8px; color:var(--ink2); transition:transform .15s ease;}
+  .aiwrap.open .aibar .aicaret{transform:rotate(180deg);}
+  .aiwrap.open .aibar{background:linear-gradient(90deg,#ffe9f4,#f3ebff 55%,#eef7ff); border-bottom:2px solid var(--line2);}
+  .panel.aiopen .legend{display:none;}
+  .aibar:focus-visible{outline:2px dashed var(--ink2); outline-offset:-2px;}
+  .aibody{padding:7px 7px 8px; display:flex; flex-direction:column; gap:7px;}
+  .aibody[hidden]{display:none;}
+  .keyrow{display:flex; gap:5px; align-items:stretch;}
+  .keyrow .inp{flex:1; min-width:0; letter-spacing:.4px;}
+  .keyrow .btn98{flex:none; padding:0 8px; font-size:11px; box-shadow:2px 2px 0 rgba(120,96,190,.42), inset 0 0 0 2px #ffffff;}
+  .filein{
+    width:100%; font-family:inherit; font-size:10px; color:var(--ink2); cursor:pointer;
+    background:#ffffff; border:2px dashed var(--line); padding:6px 5px; border-radius:0;
+  }
+  .filein::-webkit-file-upload-button{
+    font-family:inherit; font-size:10px; margin-right:6px; padding:3px 6px; cursor:pointer;
+    color:var(--ink); background:linear-gradient(#ffffff,#ece5ff);
+    border:2px solid var(--ink); border-radius:0;
+  }
+  .filein::file-selector-button{
+    font-family:inherit; font-size:10px; margin-right:6px; padding:3px 6px; cursor:pointer;
+    color:var(--ink); background:linear-gradient(#ffffff,#ece5ff);
+    border:2px solid var(--ink); border-radius:0;
+  }
+  .thumbs{display:flex; flex-wrap:wrap; gap:3px;}
+  .thumbs[hidden]{display:none;}
+  .thumbs img{
+    width:42px; height:30px; object-fit:cover;
+    border:1px solid var(--ink); background:#f1eaff;
+    image-rendering:pixelated; image-rendering:crisp-edges;
+  }
+  .aistat{
+    font-size:9.5px; line-height:1.5; color:var(--ink2);
+    background:#ffffff; border:1px solid var(--line2); padding:3px 5px; min-height:22px;
+    overflow-wrap:anywhere; word-break:break-all;
+  }
+  .aistat.warn{color:#a1432f; background:#fff5f1; border-color:#efc3b4;}
+  .aistat.ok{color:#2f6b3a; background:#f2fbf3; border-color:#bfe6c6;}
+  .aistat.work{color:#4a3b73; background:#f7f3ff; border-color:#d9ccf5;}
+  .excl{border:1px solid var(--line2); background:#ffffff;}
+  .excl[hidden]{display:none;}
+  .excl-head{
+    font-size:8.5px; letter-spacing:.7px; color:#a294c9;
+    padding:3px 5px; background:#f7f2ff; border-bottom:1px solid var(--line2);
+  }
+  .excl ul{
+    list-style:none; margin:0; padding:3px 5px 5px; max-height:98px;
+    overflow-y:auto; -webkit-overflow-scrolling:touch; font-size:10px; line-height:1.4;
+  }
+  .excl li{padding:2px 0; border-bottom:1px dashed #eee6fb; overflow-wrap:anywhere;}
+  .excl li:last-child{border-bottom:0;}
+  .excl .eid{color:var(--ink);}
+  .excl .ere{color:#a294c9; font-size:9.5px;}
 
   .btn98{
     font-family:inherit; font-size:12.5px; color:var(--ink);
@@ -317,6 +405,13 @@
     animation: wob 2.2s ease-in-out infinite;
   }
   @keyframes wob{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  .popevent{
+    display:inline-block; max-width:100%; margin:0 0 5px;
+    font-size:10px; line-height:1.35; color:#5a5380;
+    background:#f4eeff; border:1px solid var(--line2); padding:1px 7px;
+    overflow-wrap:anywhere; word-break:keep-all;
+  }
+  .popevent[hidden]{display:none;}
   .poplab{font-size:9.5px; color:#a294c9; letter-spacing:1px;}
   .popitem{
     margin:5px 0 3px; font-size:19px; line-height:1.28; color:var(--ink);
@@ -371,6 +466,11 @@
     .hist .hist-head{font-size:10px;}
     .stageHint{font-size:9px; bottom:3px;}
     .stageTag{font-size:8.5px; top:3px; left:3px;}
+    .inp{font-size:11px; padding:5px 6px;}
+    .aibar{font-size:11px; padding:5px 6px;}
+    .thumbs img{width:38px; height:27px;}
+    .aistat{font-size:9px;}
+    .excl ul{max-height:74px; font-size:9.5px;}
   }
   @media (max-height: 720px){
     .appbody{grid-template-rows:minmax(0, .78fr) minmax(0, 1fr); gap:6px; padding:6px;}
@@ -412,12 +512,54 @@
 
     <section class="panel" aria-label="추첨 설정">
       <div class="field">
+        <label class="flabel" for="eventName"><b>이벤트 상품명</b><span class="hint">당첨 팝업에 함께 떠요</span></label>
+        <input class="inp" id="eventName" type="text" placeholder="예: 박지훈 뱃지 세트 당첨자 추첨" autocomplete="off" spellcheck="false" maxlength="60">
+      </div>
+
+      <div class="field">
         <label class="flabel" for="items"><b>추첨 항목</b><span class="hint">줄바꿈 · 쉼표 구분</span></label>
         <textarea id="items" spellcheck="false" autocomplete="off" autocapitalize="off">1등 · 친필 사인 포카
 2등 · 아크릴 스탠드
 3등 · 메이 뱃지 세트
 4등 · 포토카드 5종
 5등 · 스티커 팩</textarea>
+      </div>
+
+      <div class="aiwrap" id="aiWrap">
+        <button class="aibar" id="aiToggle" type="button" aria-expanded="false" aria-controls="aiBody">
+          <span aria-hidden="true">🎬</span>
+          <span class="aitxt">영상으로 참여자 추첨</span>
+          <span class="aicaret" aria-hidden="true">▲</span>
+        </button>
+        <div class="aibody" id="aiBody" hidden>
+          <div class="field">
+            <label class="flabel" for="gkey"><b>Gemini API 키</b></label>
+            <div class="keyrow">
+              <input class="inp" id="gkey" type="password" placeholder="AIza…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="gkeyHint">
+              <button class="btn98" id="gkeyEye" type="button" aria-label="API 키 보기">👁</button>
+            </div>
+            <div class="note" id="gkeyHint">내 브라우저에만 저장돼요 · 무료 Gemini API 키 사용 · <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">키 발급</a></div>
+          </div>
+
+          <div class="field">
+            <label class="flabel" for="cond"><b>참여 조건</b><span class="hint">비우면 아이디만 추출</span></label>
+            <input class="inp" id="cond" type="text" placeholder="예: 박지훈 응원 댓글 남기기, 친구 1명 태그" autocomplete="off" spellcheck="false">
+          </div>
+
+          <div class="field">
+            <label class="flabel" for="aiFiles"><b>화면 녹화 영상 / 캡처</b><span class="hint" id="aiFileHint">여러 개 가능</span></label>
+            <input class="filein" id="aiFiles" type="file" accept="video/*,image/*" multiple>
+          </div>
+
+          <div class="thumbs" id="aiThumbs" hidden></div>
+          <div class="aistat" id="aiStat" role="status" aria-live="polite">영상을 올리면 자동으로 장면을 뽑아 두요.</div>
+          <button class="btn98 small" id="aiRun" type="button">AI로 조건 검수 &amp; 아이디 추출</button>
+
+          <div class="excl" id="aiExcl" hidden>
+            <div class="excl-head" id="aiExclHead">참고 · 제외 0명</div>
+            <ul id="aiExclList"></ul>
+          </div>
+        </div>
       </div>
 
       <div class="opts">
@@ -464,6 +606,7 @@
     </div>
     <div class="popupinner">
       <div class="badge" id="popBadge" aria-hidden="true"></div>
+      <div class="popevent" id="popEvent" hidden></div>
       <div class="poplab">오늘의 뽑봉 결과</div>
       <div class="popitem" id="popItem">—</div>
       <div class="popsub" id="popSub">—</div>
@@ -615,6 +758,14 @@
       elPopBadge = $('popBadge'), elConfetti = $('confetti'),
       elPopOk = $('popOk');
   var elToast = $('toast');
+  var elEvent = $('eventName'), elPopEvent = $('popEvent');
+
+  /* AI 비전 분석 요소 */
+  var elAiWrap = $('aiWrap'), elAiToggle = $('aiToggle'), elAiBody = $('aiBody');
+  var elGkey = $('gkey'), elGkeyEye = $('gkeyEye'), elGkeyHint = $('gkeyHint');
+  var elCond = $('cond'), elAiFiles = $('aiFiles');
+  var elAiThumbs = $('aiThumbs'), elAiStat = $('aiStat'), elAiRun = $('aiRun');
+  var elAiExcl = $('aiExcl'), elAiExclHead = $('aiExclHead'), elAiExclList = $('aiExclList');
 
   /* ════════════════════════════════════════════
      3. 공(캡슐) 물리
@@ -1120,6 +1271,14 @@
   function showResult(res){
     if (!res) return;
     var col = MAY_COLORS[res.ci];
+    var evName = (elEvent.value || '').trim();
+    if (evName){
+      elPopEvent.textContent = '🎁 ' + evName;
+      elPopEvent.hidden = false;
+    } else {
+      elPopEvent.textContent = '';
+      elPopEvent.hidden = true;
+    }
     elPopItem.textContent = res.item;
     elPopSub.textContent = col.name + ' 캡슐 · ' + col.pantone;
     elPopBadge.style.setProperty('--c', col.hex);
@@ -1205,7 +1364,9 @@
         items: elItems.value,
         hist: history,
         noDup: elNoDup.checked,
-        sfx: elSfx.checked
+        sfx: elSfx.checked,
+        eventName: elEvent.value,
+        cond: elCond.value
       }));
     } catch (e){}
   }
@@ -1218,6 +1379,8 @@
       if (d && Array.isArray(d.hist)) history = d.hist.slice(0, 40);
       if (d && typeof d.noDup === 'boolean') elNoDup.checked = d.noDup;
       if (d && typeof d.sfx === 'boolean') elSfx.checked = d.sfx;
+      if (d && typeof d.eventName === 'string') elEvent.value = d.eventName;
+      if (d && typeof d.cond === 'string') elCond.value = d.cond;
       for (var i = 0; i < history.length; i++) wonSet[history[i].item] = true;
     } catch (e){}
   }
@@ -1245,6 +1408,10 @@
   elReset.addEventListener('click', resetAll);
   elItems.addEventListener('input', function(){ updatePoolInfo(); save(); });
   elItems.addEventListener('change', save);
+  elEvent.addEventListener('input', save);
+  elEvent.addEventListener('change', save);
+  elCond.addEventListener('input', save);
+  elCond.addEventListener('change', save);
   elNoDup.addEventListener('change', function(){ updatePoolInfo(); save(); });
   elSfx.addEventListener('change', function(){ updatePoolInfo(); save(); if (elSfx.checked) blip(880, 0.08, 'square', 0.05, 0); });
 
@@ -1318,9 +1485,387 @@
   })();
 
   /* ════════════════════════════════════════════
-     10. 시작
+     9-b. AI 비전 영상 분석 (Gemini)
+     ── 키는 이 브라우저(localStorage)에만 저장되고, 코드·저장소에는 들어가지 않는다.
      ════════════════════════════════════════════ */
+  var KEY_STORE = 'may_ppobbong_gemini_key_v1';
+  var MAX_FRAMES = 12;
+  var FRAME_STEP = 0.7;      /* 초 단위 추출 간격 */
+  var FRAME_MAX_W = 900;     /* 업로드 전 가로 최대 픽셀 */
+  var AI_BTN_LABEL = 'AI로 조건 검수 & 아이디 추출';
+  var aiFrames = [];         /* {url: dataURL} */
+  var aiBusy = false;
+  var aiGen = 0;             /* 파일 교체 감지용 */
+
+  function setAiStat(msg, cls){
+    elAiStat.textContent = msg;
+    elAiStat.className = 'aistat' + (cls ? ' ' + cls : '');
+  }
+  function toggleAi(open){
+    var willOpen = (open === undefined) ? elAiBody.hidden : !!open;
+    elAiBody.hidden = !willOpen;
+    elAiWrap.classList.toggle('open', willOpen);
+    document.querySelector('.panel').classList.toggle('aiopen', willOpen);
+    elAiToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    if (willOpen){
+      setTimeout(function(){
+        try { elAiWrap.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e){}
+      }, 60);
+    }
+  }
+  function loadKey(){
+    try {
+      var k = localStorage.getItem(KEY_STORE);
+      if (k) elGkey.value = k;
+    } catch (e){}
+  }
+  function saveKey(){
+    try { localStorage.setItem(KEY_STORE, (elGkey.value || '').trim()); } catch (e){}
+  }
+
+  /* ── 프레임 추출 ───────────────────────────── */
+  function grab(src, w, h){
+    if (aiFrames.length >= MAX_FRAMES) return;
+    var scale = Math.min(1, FRAME_MAX_W / Math.max(1, w));
+    var out = document.createElement('canvas');
+    out.width = Math.max(1, Math.round(w * scale));
+    out.height = Math.max(1, Math.round(h * scale));
+    var octx = out.getContext('2d');
+    octx.fillStyle = '#ffffff';
+    octx.fillRect(0, 0, out.width, out.height);
+    try { octx.drawImage(src, 0, 0, out.width, out.height); }
+    catch (e){ return; }
+    var url;
+    try { url = out.toDataURL('image/jpeg', 0.72); }
+    catch (e){ return; }
+    aiFrames.push({ url: url });
+  }
+
+  function framesFromVideo(file, budget){
+    return new Promise(function(resolve){
+      var v = document.createElement('video');
+      v.muted = true;
+      v.playsInline = true;
+      v.preload = 'auto';
+      v.setAttribute('playsinline', '');
+      v.setAttribute('webkit-playsinline', '');
+      var url = null;
+      try { url = URL.createObjectURL(file); }
+      catch (e){ resolve({ error: '영상을 열지 못했어요.' }); return; }
+      var settled = false;
+      var timer = null;
+      function end(err){
+        if (settled) return;
+        settled = true;
+        if (timer) clearTimeout(timer);
+        try { v.removeAttribute('src'); v.load(); } catch (e){}
+        try { URL.revokeObjectURL(url); } catch (e){}
+        resolve(err ? { error: err } : { ok: true });
+      }
+      timer = setTimeout(function(){
+        end('영상을 읽는 데 시간이 너무 오래 걸려요. 영상을 짧게 나누거나 캡처 이미지로 올려 주세요.');
+      }, 45000);
+      v.onerror = function(){
+        end('이 영상 형식을 브라우저가 읽지 못했어요. mp4로 다시 올리거나 캡처 이미지로 올려 주세요.');
+      };
+      v.onloadeddata = function(){
+        var dur = v.duration;
+        if (!isFinite(dur) || dur <= 0){
+          end('영상 길이를 읽지 못했어요. 캡처 이미지로 올리면 훨씬 빨라요.');
+          return;
+        }
+        var times = [];
+        for (var t = 0.1; t < dur - 0.02; t += FRAME_STEP) times.push(t);
+        if (!times.length) times.push(Math.min(0.1, dur / 2));
+        if (times.length > budget){
+          var step = times.length / budget;
+          var picked = [];
+          for (var pi = 0; pi < budget; pi++){
+            picked.push(times[Math.min(times.length - 1, Math.floor(pi * step))]);
+          }
+          times = picked;
+        }
+        var idx = 0;
+        v.onseeked = function(){
+          grab(v, v.videoWidth || 720, v.videoHeight || 1280);
+          idx++;
+          if (idx >= times.length){ end(null); return; }
+          v.currentTime = times[idx];
+        };
+        try { v.currentTime = times[0]; }
+        catch (e){ end('영상 장면을 뽑지 못했어요. 다른 파일로 다시 시도해 주세요.'); }
+      };
+      v.src = url;
+    });
+  }
+
+  function framesFromImage(file){
+    return new Promise(function(resolve){
+      var img = new Image();
+      var url = null;
+      try { url = URL.createObjectURL(file); }
+      catch (e){ resolve({ error: '이미지를 열지 못했어요.' }); return; }
+      img.onload = function(){
+        grab(img, img.naturalWidth || 720, img.naturalHeight || 1280);
+        try { URL.revokeObjectURL(url); } catch (e){}
+        resolve({ ok: true });
+      };
+      img.onerror = function(){
+        try { URL.revokeObjectURL(url); } catch (e){}
+        resolve({ error: '이 이미지 형식을 읽지 못했어요(HEIC·GIF 등). JPG·PNG로 올려 주세요.' });
+      };
+      img.src = url;
+    });
+  }
+
+  function renderThumbs(){
+    elAiThumbs.innerHTML = '';
+    if (!aiFrames.length){ elAiThumbs.hidden = true; return; }
+    for (var i = 0; i < aiFrames.length; i++){
+      var im = document.createElement('img');
+      im.src = aiFrames[i].url;
+      im.alt = '추출한 장면 ' + (i + 1) + '장';
+      elAiThumbs.appendChild(im);
+    }
+    elAiThumbs.hidden = false;
+  }
+
+  async function handleAiFiles(){
+    var list = elAiFiles.files ? Array.prototype.slice.call(elAiFiles.files) : [];
+    aiFrames = [];
+    renderThumbs();
+    elAiExcl.hidden = true;
+    if (!list.length){ setAiStat('영상을 올리면 자동으로 장면을 뽑아 두요.'); return; }
+    var gen = ++aiGen;
+    setAiStat('장면을 뽑는 중… 0장', 'work');
+    var errors = [];
+    for (var i = 0; i < list.length; i++){
+      if (aiFrames.length >= MAX_FRAMES) break;
+      var f = list[i];
+      var isVideo = /^video\//.test(f.type || '') || /\.(mp4|mov|m4v|webm|avi)$/i.test(f.name || '');
+      var r = isVideo ? await framesFromVideo(f, MAX_FRAMES - aiFrames.length)
+                      : await framesFromImage(f);
+      if (gen !== aiGen) return;   /* 그새 다른 파일로 교체됨 */
+      if (r && r.error) errors.push((f.name || '파일') + ' — ' + r.error);
+      setAiStat('장면을 뽑는 중… ' + aiFrames.length + '장', 'work');
+      renderThumbs();
+    }
+    if (gen !== aiGen) return;
+    if (!aiFrames.length){
+      setAiStat(errors.length ? errors.join(' / ')
+        : '장면을 하나도 뽑지 못했어요. 다른 파일로 다시 시도해 주세요.', 'warn');
+      return;
+    }
+    var msg = aiFrames.length + '장 추출 완료 · AI 검수를 눌러 주세요.';
+    if (errors.length) msg += ' (일부 실패: ' + errors.join(' / ') + ')';
+    setAiStat(msg, errors.length ? 'warn' : 'ok');
+  }
+
+  /* ── 프롬프트 ────────────────────────────── */
+  function buildPrompt(cond){
+    var c = (cond || '').trim();
+    return [
+      '너는 한국어 SNS 이벤트 참여 검수 도우미다. 첨부한 이미지는 사용자가 휴대폰으로 녹화·캡처한 쓰레드(Threads) 게시물 댓글 화면이다.',
+      '',
+      '[이벤트 참여 조건]',
+      c ? c : '(조건 없음 — 아이디만 정확하게 추출)',
+      '',
+      '[할 일]',
+      '1. 이미지에 보이는 댓글 작성자의 아이디를 모두 읽어라. 쓰레드 아이디는 작성자 이름 옆에 "@아이디" 형태로 표시된다.',
+      '2. 같은 아이디가 여러 번 나오거나 댓글을 여러 개 남겼으면 한 번만 넣어라.',
+      '3. "답글", "좋아요", "번역 보기", "팔로우", "n시간 전", "n일 전", "n개 답글", "더 보기" 같은 앱 UI 글자와 해시태그(#)는 아이디가 아니다.',
+      '4. 참여 조건이 있으면 댓글 내용과 조건을 실제로 대조해 충족 여부를 판단해라. 화면에 보이지 않는 정보(팔로우 여부 등)는 추측하지 말고 판단 불가로 처리해라.',
+      '5. 조건을 충족하면 eligible 에, 충족하지 않으면 excluded 에 {"id": "@아이디", "reason": "짧은 한국어 사유"} 형태로 넣어라.',
+      '6. 아이디는 "@"를 붙여 화면에 보이는 철자 그대로 적어라. 흐리거나 잘려서 확실히 읽히지 않는 아이디는 추측해서 만들지 말고 excluded 에 사유 "화면이 흐려 확인 불가"로 넣어라.',
+      '7. 같은 아이디를 eligible 과 excluded 에 동시에 넣지 마라.',
+      '',
+      '[출력] 아래 형식의 JSON 객체 하나만 출력해라. 설명·마크다운 없이.',
+      '{"eligible": ["@아이디", ...], "excluded": [{"id": "@아이디", "reason": "..."}], "note": "한국어 한 줄 요약"}'
+    ].join('\n');
+  }
+
+  function parseAIJson(text){
+    var s = String(text || '').trim();
+    s = s.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+    var a = s.indexOf('{'), b = s.lastIndexOf('}');
+    if (a < 0 || b <= a) return null;
+    try { return JSON.parse(s.slice(a, b + 1)); }
+    catch (e){ return null; }
+  }
+
+  function normId(raw){
+    var t = String(raw === undefined || raw === null ? '' : raw).trim();
+    t = t.replace(/[\s"'`]/g, '');
+    t = t.replace(/^@+/, '');
+    t = t.replace(/[.,;:)\]}>]+$/, '');
+    if (!t) return '';
+    if (t.length > 40) return '';
+    return '@' + t;
+  }
+
+  function aiDone(msg, cls){
+    aiBusy = false;
+    elAiRun.disabled = false;
+    elAiRun.textContent = AI_BTN_LABEL;
+    if (msg) setAiStat(msg, cls);
+  }
+
+  function renderExcl(list, okCount){
+    elAiExclList.innerHTML = '';
+    if (!list.length){ elAiExcl.hidden = true; return; }
+    elAiExclHead.textContent = '참고 · 제외 ' + list.length + '명 (적격 ' + okCount + '명)';
+    for (var i = 0; i < list.length; i++){
+      var li = document.createElement('li');
+      var a = document.createElement('span');
+      a.className = 'eid';
+      a.textContent = list[i].id;
+      var b = document.createElement('span');
+      b.className = 'ere';
+      b.textContent = ' — ' + list[i].reason;
+      li.appendChild(a); li.appendChild(b);
+      elAiExclList.appendChild(li);
+    }
+    elAiExcl.hidden = false;
+  }
+
+  function applyAI(d){
+    var seen = Object.create(null);
+    var ok = [], ex = [], i, id;
+    if (d && Array.isArray(d.eligible)){
+      for (i = 0; i < d.eligible.length; i++){
+        var e0 = d.eligible[i];
+        id = normId(typeof e0 === 'string' ? e0 : (e0 && e0.id));
+        if (!id || seen[id.toLowerCase()]) continue;
+        seen[id.toLowerCase()] = 1;
+        ok.push(id);
+      }
+    }
+    if (d && Array.isArray(d.excluded)){
+      for (i = 0; i < d.excluded.length; i++){
+        var e1 = d.excluded[i];
+        id = normId(typeof e1 === 'string' ? e1 : (e1 && e1.id));
+        if (!id || seen[id.toLowerCase()]) continue;
+        seen[id.toLowerCase()] = 1;
+        var reason = (e1 && e1.reason) ? String(e1.reason) : '조건 미충족';
+        ex.push({ id: id, reason: reason.slice(0, 60) });
+      }
+    }
+    aiDone(null);
+    renderExcl(ex, ok.length);
+    if (!ok.length){
+      setAiStat('조건을 충족한 아이디를 찾지 못했어요. 제외 ' + ex.length + '명은 아래 참고 목록에 있어요.', 'warn');
+      return;
+    }
+    elItems.value = ok.join('\n');
+    updatePoolInfo();
+    save();
+    var note = (d && d.note) ? ' · ' + String(d.note).slice(0, 70) : '';
+    setAiStat('적격 ' + ok.length + '명을 추첨 항목에 채웠어요 · 제외 ' + ex.length + '명' + note, 'ok');
+    toast('적격 ' + ok.length + '명을 항목에 채웠어요!');
+  }
+
+  async function runAI(){
+    if (aiBusy) return;
+    var key = (elGkey.value || '').trim();
+    if (!key){
+      toggleAi(true);
+      setAiStat('Gemini API 키를 먼저 입력해 주세요. 위 "키 발급" 링크에서 무료로 받을 수 있어요.', 'warn');
+      elGkey.focus();
+      return;
+    }
+    if (!aiFrames.length){
+      toggleAi(true);
+      setAiStat('영상이나 캡처 이미지를 먼저 올려 주세요.', 'warn');
+      return;
+    }
+    saveKey();
+    aiBusy = true;
+    elAiRun.disabled = true;
+    elAiRun.textContent = 'AI가 읽는 중… (' + aiFrames.length + '장)';
+    setAiStat('AI가 ' + aiFrames.length + '장을 읽고 있어요… 보통 10~30초 걸러요.', 'work');
+
+    var parts = [{ text: buildPrompt(elCond.value) }];
+    for (var i = 0; i < aiFrames.length; i++){
+      parts.push({ inlineData: { mimeType: 'image/jpeg', data: aiFrames[i].url.split(',')[1] } });
+    }
+    var payload = {
+      contents: [{ role: 'user', parts: parts }],
+      generationConfig: { temperature: 0, responseMimeType: 'application/json' }
+    };
+    var endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(key);
+
+    var res;
+    try {
+      res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (err){
+      aiDone('네트워크에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.', 'warn');
+      return;
+    }
+
+    var data = null;
+    try { data = await res.json(); } catch (e){ data = null; }
+    if (!res.ok){
+      var em = (data && data.error && data.error.message) ? String(data.error.message) : ('HTTP ' + res.status);
+      if (res.status === 400 || res.status === 401 || res.status === 403){
+        aiDone('API 키가 올바르지 않거나 권한이 없어요. 키를 다시 확인해 주세요. (' + em + ')', 'warn');
+      } else if (res.status === 429){
+        aiDone('무료 사용량을 잠시 다 썼어요. 1~2분 뒤 다시 시도해 주세요. (' + em + ')', 'warn');
+      } else if (res.status === 404){
+        aiDone('AI 모델을 찾지 못했어요. 잠시 뒤 다시 시도해 주세요. (' + em + ')', 'warn');
+      } else if (res.status >= 500){
+        aiDone('AI 서버가 잠시 불안정해요. 30초 뒤 다시 시도해 주세요. (' + res.status + ')', 'warn');
+      } else {
+        aiDone('AI 요청이 거부됐어요 (' + res.status + '). ' + em, 'warn');
+      }
+      return;
+    }
+
+    var text = '';
+    try {
+      var cand = data && data.candidates && data.candidates[0];
+      if (cand && cand.content && cand.content.parts){
+        for (var p = 0; p < cand.content.parts.length; p++){
+          if (cand.content.parts[p] && cand.content.parts[p].text) text += cand.content.parts[p].text;
+        }
+      }
+    } catch (e){}
+    if (!text){
+      var block = data && data.promptFeedback && data.promptFeedback.blockReason;
+      aiDone(block
+        ? ('AI가 이 화면을 읽지 못했어요 (사유: ' + block + '). 다른 장면으로 다시 시도해 주세요.')
+        : 'AI가 빈 응답을 보냈어요. 다시 눌러 주세요.', 'warn');
+      return;
+    }
+    var parsed = parseAIJson(text);
+    if (!parsed){
+      aiDone('AI 응답을 이해하지 못했어요. 다시 눌러 주세요. (응답: ' + text.slice(0, 60) + '…)', 'warn');
+      return;
+    }
+    applyAI(parsed);
+  }
+
+  elAiToggle.addEventListener('click', function(){ toggleAi(); });
+  elGkey.addEventListener('input', saveKey);
+  elGkey.addEventListener('change', saveKey);
+  elGkey.addEventListener('blur', saveKey);
+  elGkeyEye.addEventListener('click', function(){
+    var showing = elGkey.type === 'text';
+    elGkey.type = showing ? 'password' : 'text';
+    elGkeyEye.textContent = showing ? '👁' : '🙈';
+    elGkeyEye.setAttribute('aria-label', showing ? 'API 키 보기' : 'API 키 숨기기');
+  });
+  elAiFiles.addEventListener('change', handleAiFiles);
+  elAiRun.addEventListener('click', runAI);
+
+  /* ══════════════════════════════════════════════
+     10. 시작
+     ══════════════════════════════════════════════ */
   load();
+  loadKey();
   makeBalls();
   renderHistory();
   updatePoolInfo();
